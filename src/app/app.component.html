@@ -1,20 +1,121 @@
-<!--The content below is only a placeholder and can be replaced.-->
-<div style="text-align:center">
-  <h1>
-    Welcome to {{ title }}!
-  </h1>
-  <img width="300" alt="Angular Logo" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNTAgMjUwIj4KICAgIDxwYXRoIGZpbGw9IiNERDAwMzEiIGQ9Ik0xMjUgMzBMMzEuOSA2My4ybDE0LjIgMTIzLjFMMTI1IDIzMGw3OC45LTQzLjcgMTQuMi0xMjMuMXoiIC8+CiAgICA8cGF0aCBmaWxsPSIjQzMwMDJGIiBkPSJNMTI1IDMwdjIyLjItLjFWMjMwbDc4LjktNDMuNyAxNC4yLTEyMy4xTDEyNSAzMHoiIC8+CiAgICA8cGF0aCAgZmlsbD0iI0ZGRkZGRiIgZD0iTTEyNSA1Mi4xTDY2LjggMTgyLjZoMjEuN2wxMS43LTI5LjJoNDkuNGwxMS43IDI5LjJIMTgzTDEyNSA1Mi4xem0xNyA4My4zaC0zNGwxNy00MC45IDE3IDQwLjl6IiAvPgogIDwvc3ZnPg==">
-</div>
-<h2>Here are some links to help you start: </h2>
-<ul>
-  <li>
-    <h2><a target="_blank" rel="noopener" href="https://angular.io/tutorial">Tour of Heroes</a></h2>
-  </li>
-  <li>
-    <h2><a target="_blank" rel="noopener" href="https://angular.io/cli">CLI Documentation</a></h2>
-  </li>
-  <li>
-    <h2><a target="_blank" rel="noopener" href="https://blog.angular.io/">Angular blog</a></h2>
-  </li>
-</ul>
 
+<div class="container">
+  <p></p>
+  <div class="row">
+    <ul class="nav nav-pills">
+      <li>
+        <button class="btn btn-primary" (click)="onMult()">Mat Mul</button>
+      </li>
+      <li>
+        <button class="btn btn-primary" (click)="onTranspose('X')">Transpose X</button>
+      </li>
+      <li>
+        <button class="btn btn-primary" (click)="onTranspose('Y')">Transpose Y</button>
+      </li>
+      <li>
+        <button class="btn btn-primary" (click)="onRelu('X')">RELU (X)</button>
+      </li>
+      <li>
+        <button class="btn btn-primary" (click)="onSigmoid('X')">Sigmoid (X)</button>
+      </li>
+    </ul>
+  </div>
+  <p></p>
+  <div class="row">
+    <p>
+      Operation : {{operation}}
+    </p>
+    <div class="col-md-5" *ngFor="let t of tensors | keyvalue">
+      <div class="panel panel-primary">
+        <div class="panel-heading">Tensor {{t.key}}</div>
+        <div class="panel-body">
+          <table class="table">
+            <tr *ngFor="let line of t.value.arraySync()">
+              <td *ngFor="let v of line">{{v|number:'0.2'}}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="container">
+  <div class="panel panel-default">
+    <div class="panel-heading">Neural Net Model</div>
+    <div class="panel-body">
+      <ul class="nav nav-pills">
+        <li><button class="btn btn-success" (click)="onCreateModel()">Create Model</button></li>
+        <li><button class="btn btn-success" (click)="onLoadData()">Load Data</button></li>
+        <li><button class="btn btn-success" (click)="onTrainModel()">Train</button></li>
+        <li><button class="btn btn-success" (click)="onSaveModel()">Save Model</button></li>
+        <li><button class="btn btn-success" (click)="onLoadModel()">Load Model</button></li>
+        <li><button class="btn btn-success" (click)="onEvalModel()">Evaluate Model</button></li>
+      </ul>
+      <div class="row">
+        <div class="col-md-8">
+          <progress-bar [progress]="currentEpoch" [color-degraded]="{'0': '#00cbcb',  '15': '#f9c3d3', '25': '#fd8c8e'}"></progress-bar>
+        </div>
+        <div class="col-md-4">
+          <label>Loss: {{currentLoss}}</label>
+          <label>Accuracy: {{currentAccuracy}}</label>
+          <label>Evaluation: {{100*correctEval/(correctEval+wrongEval)}} %</label>
+        </div>
+      </div>
+      <div class="row" *ngIf="modelCreated">
+        <div class="row">
+          <div class="col-md-4">
+            <img src="assets/images/model.png" width="300" >
+          </div>
+          <div class="col-md-4">
+            <div class="panel panel-default">
+              <div class="panel-heading">Prediction :<strong>{{prediction}}</strong></div>
+              <div class="panel-body">
+                <form #f="ngForm" (ngSubmit)="onPredict(f.value)">
+                  <div class="form-group">
+                    <label class="control-label">SepalLengthCm:</label>
+                    <input class="form-control" type="text" name="SepalLengthCm" ngModel="" [(ngModel)]="example.SepalLengthCm">
+                  </div>
+                  <div class="form-group">
+                    <label class="control-label">SepalWidthCm:</label>
+                    <input class="form-control" type="text" name="SepalWidthCm" ngModel="" [(ngModel)]="example.SepalWidthCm">
+                  </div>
+                  <div class="form-group">
+                    <label class="control-label">PetalLengthCm:</label>
+                    <input class="form-control" type="text" name="PetalLengthCm" ngModel="" [(ngModel)]="example.PetalLengthCm">
+                  </div>
+                  <div class="form-group">
+                    <label class="control-label">PetalWidthCm:</label>
+                    <input class="form-control" type="text" name="PetalWidthCm" ngModel="" [(ngModel)]="example.PetalWidthCm">
+                  </div>
+                  <button type="submit">Predict</button>
+                </form>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <img src="assets/images/{{prediction}}.png" width="200">
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <table class="table" *ngIf="xs">
+            <tr>
+              <th>SepalLengthCm</th>
+              <th>SepalWidthCm</th>
+              <th>PetalLengthCm</th>
+              <th>PetalWidthCm</th>
+              <th>Species</th>
+            </tr>
+            <tr *ngFor="let d of xs; let i=index">
+              <td>{{xs[i][0]}}</td>
+              <td>{{xs[i][1]}}</td>
+              <td>{{xs[i][2]}}</td>
+              <td>{{xs[i][3]}}</td>
+              <td>{{getIrisClass(ys[i])}}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
